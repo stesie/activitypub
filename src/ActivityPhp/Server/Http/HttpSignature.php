@@ -103,11 +103,9 @@ class HttpSignature
 
         // Verify that string using the public key and the original 
         // signature.
-        $rsa = RSA::createKey()
-                  ->loadPublicKey($publicKeyPem)
-                  ->withHash('sha256'); 
+        $rsa = RSA::load($publicKeyPem)->withHash('sha256')->withPadding(RSA::SIGNATURE_PKCS1);
 
-        return $rsa->verify($data, base64_decode($signature, true)); 
+        return $rsa->verify($data, \base64_decode($signature));
     }
 
     /**
@@ -144,7 +142,7 @@ class HttpSignature
     {
         $strings = [];
         $strings[] = sprintf(
-            '(request-target) %s %s%s',
+            '(request-target): %s %s%s',
             strtolower($request->getMethod()),
             $request->getPathInfo(),
             $request->getQueryString() 
